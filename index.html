@@ -1,152 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>NEET Mock Test Generator 🎯</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="container">
-        <!-- Screen 1: Welcome Screen -->
-        <div id="welcome-screen" class="screen active">
-            <div class="welcome-card">
-                <h1>🎯 NEET MOCK TEST</h1>
-                <p class="subtitle">Paste Questions → Instant Test</p>
-                
-                <div class="feature-box">
-                    <div class="feature">✅ NEET-Style Interface</div>
-                    <div class="feature">⏱️ 3-Hour Timer</div>
-                    <div class="feature">🎨 Question Palette</div>
-                    <div class="feature">📊 Detailed Analysis</div>
-                </div>
-                
-                <button class="btn-primary" onclick="showCreator()">Create New Test →</button>
-                
-                <p class="note">📱 Made for NEET aspirants</p>
-            </div>
+<div id="creator-screen" class="screen">
+    <div class="creator-card">
+        <h2>📝 Create Your Test</h2>
+        
+        <div class="input-group">
+            <label>Test Title (Optional)</label>
+            <input type="text" id="test-title" placeholder="e.g., Full Syllabus Mock">
         </div>
 
-        <!-- Screen 2: Test Creator -->
-        <div id="creator-screen" class="screen">
-            <div class="creator-card">
-                <h2>📝 Create Your Test</h2>
-                
-                <div class="input-group">
-                    <label>Test Title (Optional)</label>
-                    <input type="text" id="test-title" placeholder="e.g., Physics - Current Electricity">
-                </div>
-
-                <div class="input-group">
-                    <label>Duration (minutes)</label>
-                    <input type="number" id="test-duration" value="180" min="1" max="180">
-                </div>
-
-                <div class="input-group">
-                    <label>Paste Your Questions Below:</label>
-                    <textarea id="question-paste" rows="12" placeholder="Paste in this format:
-1. Which is the powerhouse of cell?
-A. Nucleus
-B. Mitochondria
-C. Ribosome
-D. Golgi apparatus
-Answer: B
-
-2. Unit of electric current?
-A. Volt
-B. Ampere
-C. Ohm
-D. Watt
-Answer: B
-
-3. Which vitamin is produced in sunlight?
-A. Vitamin A
-B. Vitamin B
-C. Vitamin C
-D. Vitamin D
-Answer: D"></textarea>
-                </div>
-
-                <div class="sample-btn" onclick="loadSample()">📋 Load Sample Questions</div>
-                
-                <button class="btn-primary" onclick="generateTest()">🚀 Generate Test Now</button>
-                <button class="btn-secondary" onclick="showWelcome()">← Back</button>
-            </div>
+        <div class="input-group">
+            <label>Duration (minutes)</label>
+            <input type="number" id="test-duration" value="180" min="1" max="180">
         </div>
 
-        <!-- Screen 3: Test Interface -->
-        <div id="test-screen" class="screen">
-            <div class="test-header">
-                <div class="test-info">
-                    <span class="subject" id="subject-display">NEET Mock Test</span>
-                </div>
-                <div class="timer" id="timer-display">03:00:00</div>
-                <button class="submit-btn" onclick="submitTest()">Submit</button>
-            </div>
-
-            <div class="test-container">
-                <!-- Question Area -->
-                <div class="question-area" id="question-area">
-                    <!-- Question loads here -->
-                </div>
-
-                <!-- Question Palette (Right Side) -->
-                <div class="palette-area" id="palette-area">
-                    <h3>Question Palette</h3>
-                    <div class="palette-grid" id="palette-grid">
-                        <!-- Numbers load here -->
-                    </div>
-                    
-                    <div class="legend">
-                        <div class="legend-item">
-                            <span class="dot" style="background: #4CAF50;"></span> Answered
-                        </div>
-                        <div class="legend-item">
-                            <span class="dot" style="background: #f44336;"></span> Not Answered
-                        </div>
-                        <div class="legend-item">
-                            <span class="dot" style="background: #FFC107;"></span> Marked for Review
-                        </div>
-                        <div class="legend-item">
-                            <span class="dot" style="background: #fff; border: 2px solid #ddd;"></span> Not Visited
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <!-- Physics Section -->
+        <div class="subject-section">
+            <h3>🔬 Physics Questions</h3>
+            <textarea id="physics-questions" rows="6" placeholder="Paste Physics questions here..."></textarea>
         </div>
 
-        <!-- Screen 4: Results Screen -->
-        <div id="results-screen" class="screen">
-            <div class="results-card">
-                <h2>📊 Test Analysis</h2>
-                
-                <div class="score-circle" id="score-circle">
-                    <span id="score-display">0</span>
-                    <small>/720</small>
-                </div>
-
-                <div class="stats-grid" id="stats-grid">
-                    <!-- Stats load here -->
-                </div>
-
-                <div class="subject-analysis" id="subject-analysis">
-                    <!-- Subject analysis loads here -->
-                </div>
-
-                <div class="accuracy-meter">
-                    <div class="meter-label">Overall Accuracy</div>
-                    <div class="meter-bar">
-                        <div class="meter-fill" id="accuracy-fill" style="width: 0%"></div>
-                    </div>
-                    <div class="meter-value" id="accuracy-value">0%</div>
-                </div>
-
-                <button class="btn-primary" onclick="createNewTest()">📝 Create New Test</button>
-                <button class="btn-secondary" onclick="showWelcome()">🏠 Home</button>
-            </div>
+        <!-- Chemistry Section -->
+        <div class="subject-section">
+            <h3>🧪 Chemistry Questions</h3>
+            <textarea id="chemistry-questions" rows="6" placeholder="Paste Chemistry questions here... (Organic/Inorganic/Physical)"></textarea>
         </div>
+
+        <!-- Biology Section -->
+        <div class="subject-section">
+            <h3>🧬 Biology Questions</h3>
+            <textarea id="biology-questions" rows="6" placeholder="Paste Botany/Zoology questions here..."></textarea>
+        </div>
+
+        <div class="sample-btn" onclick="loadSample()">📋 Load Sample Questions</div>
+        
+        <button class="btn-primary" onclick="generateTest()">🚀 Generate Test Now</button>
+        <button class="btn-secondary" onclick="showWelcome()">← Back</button>
     </div>
-
-    <script src="script.js"></script>
-</body>
-  </html>
+</div>
