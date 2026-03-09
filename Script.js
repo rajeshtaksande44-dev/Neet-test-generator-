@@ -1,0 +1,528 @@
+// NEET Test Website - Complete JavaScript
+
+// Global variables
+let questions = [];
+let currentQuestionIndex = 0;
+let userAnswers = {};
+let markedForReview = new Set();
+let questionStatus = [];
+let timeLeft = 0;
+let timerInterval = null;
+let testTitle = 'NEET Mock Test';
+
+// Show/Hide Screens
+function showWelcome() {
+    hideAllScreens();
+    document.getElementById('welcome-screen').classList.add('active');
+}
+
+function showCreator() {
+    hideAllScreens();
+    document.getElementById('creator-screen').classList.add('active');
+}
+
+function showTest() {
+    hideAllScreens();
+    document.getElementById('test-screen').classList.add('active');
+}
+
+function showResults() {
+    hideAllScreens();
+    document.getElementById('results-screen').classList.add('active');
+}
+
+function hideAllScreens() {
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+    });
+}
+
+// Load sample questions
+function loadSample() {
+    const sampleText = `1. Which is the powerhouse of cell?
+A. Nucleus
+B. Mitochondria
+C. Ribosome
+D. Golgi apparatus
+Answer: B
+
+2. Unit of electric current?
+A. Volt
+B. Ampere
+C. Ohm
+D. Watt
+Answer: B
+
+3. Which vitamin is produced in sunlight?
+A. Vitamin A
+B. Vitamin B
+C. Vitamin C
+D. Vitamin D
+Answer: D
+
+4. Which of the following is a vector quantity?
+A. Mass
+B. Temperature
+C. Velocity
+D. Time
+Answer: C
+
+5. The most abundant gas in Earth's atmosphere?
+A. Oxygen
+B. Hydrogen
+C. Nitrogen
+D. Carbon dioxide
+Answer: C
+
+6. Which enzyme is present in saliva?
+A. Pepsin
+B. Trypsin
+C. Amylase
+D. Lipase
+Answer: C
+
+7. Which of the following is not a fossil fuel?
+A. Coal
+B. Petroleum
+C. Natural gas
+D. Biogas
+Answer: D
+
+8. pH of pure water?
+A. 5
+B. 7
+C. 9
+D. 11
+Answer: B
+
+9. Which vitamin is known as Ascorbic acid?
+A. Vitamin A
+B. Vitamin B12
+C. Vitamin C
+D. Vitamin D
+Answer: C
+
+10. Which of the following is a primary color?
+A. Green
+B. Orange
+C. Purple
+D. Red
+Answer: D`;
+
+    document.getElementById('question-paste').value = sampleText;
+}
+
+// Generate test from pasted questions
+function generateTest() {
+    const pastedText = document.getElementById('question-paste').value;
+    const duration = parseInt(document.getElementById('test-duration').value) || 180;
+    testTitle = document.getElementById('test-title').value || 'NEET Mock Test';
+    
+    if (!pastedText.trim()) {
+        alert('Please paste some questions first!');
+        return;
+    }
+    
+    // Parse questions
+    questions = parseQuestions(pastedText);
+    
+    if (questions.length === 0) {
+        alert('No valid questions found! Please check the format.');
+        return;
+    }
+    
+    // Initialize arrays
+    userAnswers = {};
+    markedForReview = new Set();
+    questionStatus = new Array(questions.length).fill('not-visited');
+    
+    // Set timer (convert minutes to seconds)
+    timeLeft = duration * 60;
+    
+    // Start test
+    currentQuestionIndex = 0;
+    questionStatus[0] = 'current';
+    
+    // Update subject display
+    document.getElementById('subject-display').textContent = testTitle;
+    
+    // Show test screen
+    showTest();
+    
+    // Display first question
+    displayQuestion();
+    
+    // Update palette
+    updatePalette();
+    
+    // Start timer
+    startTimer();
+}
+
+// Parse questions from text
+function parseQuestions(text) {
+    const lines = text.split('\n');
+    const questions = [];
+    let currentQuestion = null;
+    
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        
+        // Check for question number (e.g., "1.", "2.")
+        if (line.match(/^\d+\./)) {
+            // Save previous question
+            if (currentQuestion && currentQuestion.options.length > 0) {
+                questions.push(currentQuestion);
+            }
+            
+            // Start new question
+            currentQuestion = {
+                id: questions.length + 1,
+                text: line.replace(/^\d+\./, '').trim(),
+                options: [],
+                correct: null
+            };
+        }
+        // Check for options (A., B., C., D.)
+        else if (line.match(/^[A-D]\./)) {
+            if (currentQuestion) {
+                currentQuestion.options.push(line);
+            }
+        }
+        // Check for answer
+        else if (line.toLowerCase().includes('answer:')) {
+            if (currentQuestion) {
+                const answerPart = line.split(':')[1].trim();
+                // Extract just the letter (A, B, C, D)
+                const match = answerPart.match(/[A-D]/i);
+                if (match) {
+                    currentQuestion.correct = match[0].toUpperCase();
+                }
+            }
+        }
+    }
+    
+    // Add last question
+    if (currentQuestion && currentQuestion.options.length > 0) {
+        questions.push(currentQuestion);
+    }
+    
+    return questions;
+}
+
+// Display current question
+function displayQuestion() {
+    if (questions.length === 0) return;
+    
+    const q = questions[currentQuestionIndex];
+    const questionArea = document.getElementById('question-area');
+    
+    // Mark as viewed
+    if (questionStatus[currentQuestionIndex] === 'not-visited') {
+        questionStatus[currentQuestionIndex] = 'not-answered';
+    }
+    
+    // Build options HTML
+    let optionsHtml = '';
+    q.options.forEach((opt, idx) => {
+        const optionLetter = String.fromCharCode(65 + idx); // A, B, C, D
+        const isSelected = userAnswers[currentQuestionIndex] === optionLetter;
+        optionsHtml += `<div class="option ${isSelected ? 'selected' : ''}" onclick="selectOption('${optionLetter}')">${opt}</div>`;
+    });
+    
+    // Build navigation buttons
+    let navButtons = `
+        <button class="nav-btn save-next" onclick="saveAndNext()">Save & Next</button>
+        <button class="nav-btn mark-review" onclick="markForReview()">Mark for Review</button>
+        <button class="nav-btn clear" onclick="clearResponse()">Clear</button>
+    `;
+    
+    if (currentQuestionIndex > 0) {
+        navButtons += `<button class="nav-btn prev" onclick="previousQuestion()">Previous</button>`;
+    }
+    
+    // Complete question HTML
+    questionArea.innerHTML = `
+        <div class="question-number">Question ${currentQuestionIndex + 1} of ${questions.length}</div>
+        <div class="question-text">${q.text}</div>
+        <div class="options">${optionsHtml}</div>
+        <div class="nav-buttons">${navButtons}</div>
+    `;
+    
+    // Update palette
+    updatePalette();
+}
+
+// Select an option
+function selectOption(optionLetter) {
+    userAnswers[currentQuestionIndex] = optionLetter;
+    questionStatus[currentQuestionIndex] = 'answered';
+    displayQuestion();
+    updatePalette();
+}
+
+// Save and go to next
+function saveAndNext() {
+    if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        if (questionStatus[currentQuestionIndex] === 'not-visited') {
+            questionStatus[currentQuestionIndex] = 'current';
+        }
+        displayQuestion();
+    } else {
+        // Last question - show submit confirmation
+        if (confirm('This is the last question. Submit test?')) {
+            submitTest();
+        }
+    }
+}
+
+// Mark for review
+function markForReview() {
+    markedForReview.add(currentQuestionIndex);
+    questionStatus[currentQuestionIndex] = 'marked';
+    
+    if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        if (questionStatus[currentQuestionIndex] === 'not-visited') {
+            questionStatus[currentQuestionIndex] = 'current';
+        }
+        displayQuestion();
+    } else {
+        // Option to submit
+        if (confirm('Last question marked. Submit test?')) {
+            submitTest();
+        }
+    }
+}
+
+// Clear response
+function clearResponse() {
+    delete userAnswers[currentQuestionIndex];
+    questionStatus[currentQuestionIndex] = 'not-answered';
+    displayQuestion();
+    updatePalette();
+}
+
+// Go to previous question
+function previousQuestion() {
+    if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        displayQuestion();
+    }
+}
+
+// Jump to specific question
+function jumpToQuestion(index) {
+    if (index >= 0 && index < questions.length) {
+        currentQuestionIndex = index;
+        if (questionStatus[index] === 'not-visited') {
+            questionStatus[index] = 'current';
+        }
+        displayQuestion();
+    }
+}
+
+// Update question palette
+function updatePalette() {
+    const paletteGrid = document.getElementById('palette-grid');
+    let html = '';
+    
+    for (let i = 0; i < questions.length; i++) {
+        let statusClass = '';
+        
+        if (markedForReview.has(i)) {
+            statusClass = 'marked';
+        } else if (userAnswers[i]) {
+            statusClass = 'answered';
+        } else if (questionStatus[i] === 'not-visited' && i !== currentQuestionIndex) {
+            statusClass = 'not-visited';
+        } else if (!userAnswers[i]) {
+            statusClass = 'not-answered';
+        }
+        
+        html += `<button class="q-btn ${statusClass}" onclick="jumpToQuestion(${i})">${i + 1}</button>`;
+    }
+    
+    paletteGrid.innerHTML = html;
+}
+
+// Timer functions
+function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    
+    timerInterval = setInterval(() => {
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            alert('⏰ Time\'s up! Submitting test...');
+            submitTest();
+            return;
+        }
+        
+        timeLeft--;
+        updateTimerDisplay();
+        
+        // Warning at 5 minutes
+        if (timeLeft === 300) {
+            alert('⚠️ 5 minutes remaining!');
+        }
+    }, 1000);
+}
+
+function updateTimerDisplay() {
+    const hours = Math.floor(timeLeft / 3600);
+    const minutes = Math.floor((timeLeft % 3600) / 60);
+    const seconds = timeLeft % 60;
+    
+    document.getElementById('timer-display').textContent = 
+        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// Submit test and show results
+function submitTest() {
+    clearInterval(timerInterval);
+    
+    // Calculate results
+    let correct = 0;
+    let wrong = 0;
+    let skipped = 0;
+    let subjectWise = {};
+    
+    questions.forEach((q, index) => {
+        const userAnswer = userAnswers[index];
+        const isCorrect = userAnswer === q.correct;
+        
+        if (!userAnswer) {
+            skipped++;
+        } else if (isCorrect) {
+            correct++;
+        } else {
+            wrong++;
+        }
+        
+        // Detect subject (simplified)
+        const subject = detectSubject(q.text);
+        if (!subjectWise[subject]) {
+            subjectWise[subject] = { correct: 0, wrong: 0, total: 0 };
+        }
+        subjectWise[subject].total++;
+        if (isCorrect) subjectWise[subject].correct++;
+        else if (userAnswer) subjectWise[subject].wrong++;
+    });
+    
+    const total = questions.length;
+    const attempted = correct + wrong;
+    const accuracy = attempted > 0 ? Math.round((correct / attempted) * 100) : 0;
+    const score = (correct * 4) - (wrong * 1); // NEET marking
+    
+    // Display results
+    displayResults({
+        total,
+        correct,
+        wrong,
+        skipped,
+        attempted,
+        accuracy,
+        score,
+        subjectWise
+    });
+    
+    showResults();
+}
+
+// Simple subject detection
+function detectSubject(text) {
+    text = text.toLowerCase();
+    
+    const physics = ['force', 'current', 'velocity', 'mass', 'acceleration', 'energy', 'power', 'circuit', 'charge', 'field'];
+    const chemistry = ['atom', 'molecule', 'reaction', 'acid', 'base', 'bond', 'element', 'compound', 'solution', 'gas'];
+    const botany = ['plant', 'flower', 'leaf', 'root', 'photosynthesis', 'chlorophyll', 'stomata', 'pollination', 'seed'];
+    const zoology = ['animal', 'cell', 'tissue', 'organ', 'blood', 'heart', 'brain', 'nerve', 'muscle', 'digestion'];
+    
+    if (physics.some(word => text.includes(word))) return 'Physics';
+    if (chemistry.some(word => text.includes(word))) return 'Chemistry';
+    if (botany.some(word => text.includes(word))) return 'Botany';
+    if (zoology.some(word => text.includes(word))) return 'Zoology';
+    
+    return 'General';
+}
+
+// Display results
+function displayResults(data) {
+    // Score circle
+    document.getElementById('score-display').textContent = data.score;
+    
+    // Stats grid
+    const statsGrid = document.getElementById('stats-grid');
+    statsGrid.innerHTML = `
+        <div class="stat-box">
+            <div class="value">${data.correct}</div>
+            <div class="label">Correct</div>
+        </div>
+        <div class="stat-box">
+            <div class="value">${data.wrong}</div>
+            <div class="label">Wrong</div>
+        </div>
+        <div class="stat-box">
+            <div class="value">${data.skipped}</div>
+            <div class="label">Skipped</div>
+        </div>
+        <div class="stat-box">
+            <div class="value">${data.attempted}</div>
+            <div class="label">Attempted</div>
+        </div>
+    `;
+    
+    // Subject analysis
+    const subjectAnalysis = document.getElementById('subject-analysis');
+    let subjectHtml = '<h3>Subject-wise Performance</h3>';
+    
+    for (const [subject, stats] of Object.entries(data.subjectWise)) {
+        const correctPercent = (stats.correct / stats.total) * 100;
+        subjectHtml += `
+            <div class="subject-row">
+                <div class="subject-name">${subject}</div>
+                <div class="subject-stats">
+                    <span class="correct">✓ ${stats.correct}</span>
+                    <span class="wrong">✗ ${stats.wrong}</span>
+                    <span>Total: ${stats.total}</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${correctPercent}%"></div>
+                </div>
+            </div>
+        `;
+    }
+    
+    subjectAnalysis.innerHTML = subjectHtml;
+    
+    // Accuracy meter
+    document.getElementById('accuracy-fill').style.width = `${data.accuracy}%`;
+    document.getElementById('accuracy-value').textContent = `${data.accuracy}%`;
+}
+
+// Create new test
+function createNewTest() {
+    // Reset all variables
+    questions = [];
+    currentQuestionIndex = 0;
+    userAnswers = {};
+    markedForReview = new Set();
+    questionStatus = [];
+    timeLeft = 0;
+    if (timerInterval) clearInterval(timerInterval);
+    
+    // Show creator screen
+    showCreator();
+}
+
+// Initialize on page load
+window.onload = function() {
+    showWelcome();
+    
+    // Handle back button
+    window.onpopstate = function() {
+        showWelcome();
+    };
+};
