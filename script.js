@@ -154,7 +154,7 @@ Answer: A`;
 }
 
 // Parse questions from text
-function parseQuestions(text) {
+function parseQuestions(text, subject) {
     const lines = text.split('\n');
     const questions = [];
     let currentQuestion = null;
@@ -162,6 +162,41 @@ function parseQuestions(text) {
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
         if (!line) continue;
+        
+        if (line.match(/^\d+\./)) {
+            if (currentQuestion && currentQuestion.options.length > 0) {
+                questions.push(currentQuestion);
+            }
+            currentQuestion = {
+                id: questions.length + 1,
+                text: line.replace(/^\d+\./, '').trim(),
+                options: [],
+                correct: null,
+                subject: subject
+            };
+        }
+        else if (line.match(/^[A-D]\./)) {
+            if (currentQuestion) {
+                currentQuestion.options.push(line);
+            }
+        }
+        else if (line.toLowerCase().includes('answer:')) {
+            if (currentQuestion) {
+                const answerPart = line.split(':')[1].trim();
+                const match = answerPart.match(/[A-D]/i);
+                if (match) {
+                    currentQuestion.correct = match[0].toUpperCase();
+                }
+            }
+        }
+    }
+    
+    if (currentQuestion && currentQuestion.options.length > 0) {
+        questions.push(currentQuestion);
+    }
+    
+    return questions;
+}
         
         // Check for question number (e.g., "1.", "2.")
         if (line.match(/^\d+\./)) {
@@ -209,7 +244,8 @@ function parseQuestions(text) {
 function displayQuestion() {
     if (questions.length === 0) return;
     
-    const q = questions[currentQuestionIndex];
+    const q = questions[currentQuestionIndex];const q = questions[currentQuestionIndex];
+    document.getElementById('subject-display').textContent = q.subject || testTitle;
     const questionArea = document.getElementById('question-area');
     
     // Mark as viewed
@@ -396,14 +432,74 @@ function submitTest() {
         }
         
         // Detect subject (simplified)
-        const subject = detectSubject(q.text);
-        if (!subjectWise[subject]) {
-            subjectWise[subject] = { correct: 0, wrong: 0, total: 0 };
+        function detectSubject(text) {
+    text = text.toLowerCase();
+    
+    const botany = [
+        'plant', 'flower', 'leaf', 'root', 'stem', 'photosynthesis', 'chlorophyll',
+        'stomata', 'pollination', 'seed', 'fruit', 'angiosperm', 'gymnosperm',
+        'monocot', 'dicot', 'stamen', 'carpel', 'ovule', 'ovary', 'embryo',
+        'endosperm', 'transpiration', 'guttation', 'plastid', 'chromoplast',
+        'leucoplast', 'xylem', 'phloem', 'vascular', 'cortex', 'pith', 'epidermis',
+        'guard cell', 'mesophyll', 'chloroplast', 'photorespiration', 'calvin cycle',
+        'c3', 'c4', 'cam', 'nitrogen fixation', 'rhizobium', 'mycorrhiza',
+        'fern', 'moss', 'algae', 'fungi', 'lichen', 'bryophyte', 'pteridophyte',
+        'gymnosperm', 'angiosperm', 'inflorescence', 'androecium', 'gynoecium',
+        'pericycle', 'endodermis', 'cambium', 'collenchyma', 'sclerenchyma',
+        'parenchyma', 'meristem', 'abscission', 'vernalization', 'photoperiodism',
+        'auxin', 'gibberellin', 'cytokinin', 'ethylene', 'aba', 'phytochrome'
+    ];
+    
+    const zoology = [
+        'animal', 'cell', 'tissue', 'organ', 'blood', 'heart', 'brain', 'nerve',
+        'muscle', 'digestion', 'respiratory', 'excretion', 'skeleton', 'bone',
+        'cartilage', 'neuron', 'axon', 'dendrite', 'synapse', 'hormone', 'enzyme',
+        'antibody', 'antigen', 'vaccine', 'pathogen', 'bacteria', 'virus', 'protozoa',
+        'mammal', 'reptile', 'amphibian', 'bird', 'fish', 'insect', 'arthropod',
+        'mollusk', 'echinoderm', 'cnidarian', 'platyhelminthes', 'nematode',
+        'annelid', 'circulatory', 'nervous', 'endocrine', 'reproductive', 'urinary'
+    ];
+    
+    const organic = [
+        'organic', 'hydrocarbon', 'alkane', 'alkene', 'alkyne', 'alcohol', 'aldehyde',
+        'ketone', 'carboxylic', 'ester', 'ether', 'amine', 'benzene', 'polymer',
+        'monomer', 'functional group', 'isomer', 'chiral', 'enantiomer', 'diastereomer',
+        'racemic', 'substitution', 'elimination', 'addition', 'rearrangement'
+    ];
+    
+    const inorganic = [
+        'inorganic', 'metal', 'non-metal', 'coordination', 'complex', 'ligand',
+        'transition', 'lanthanide', 'actinide', 'p-block', 's-block', 'd-block',
+        'f-block', 'periodic', 'group', 'period', 'ionic', 'covalent', 'electronegativity',
+        'ionization', 'atomic radius', 'oxidation state', 'crystal field', 'chelate'
+    ];
+    
+    const physical = [
+        'physical', 'thermodynamics', 'enthalpy', 'entropy', 'gibbs', 'equilibrium',
+        'kinetics', 'rate', 'order', 'molecularity', 'electrochemistry', 'cell',
+        'electrode', 'nernst', 'conductance', 'surface', 'adsorption', 'catalyst',
+        'quantum', 'orbital', 'atomic structure', 'wave function', 'schrodinger',
+        'heisenberg', 'uncertainty', 'photoelectric', 'black body', 'maxwell'
+    ];
+    
+    const physics = [
+        'force', 'current', 'velocity', 'mass', 'acceleration', 'energy', 'power',
+        'circuit', 'charge', 'field', 'magnetic', 'electric', 'resistance', 'voltage',
+        'ohm', 'newton', 'joule', 'watt', 'hertz', 'frequency', 'wavelength',
+        'amplitude', 'diffraction', 'interference', 'refraction', 'lens', 'mirror',
+        'optics', 'thermodynamics', 'heat', 'temperature', 'kinetic', 'potential',
+        'momentum', 'impulse', 'work', 'simple harmonic', 'oscillation', 'wave'
+    ];
+    
+    if (botany.some(word => text.includes(word))) return 'Botany';
+    if (zoology.some(word => text.includes(word))) return 'Zoology';
+    if (organic.some(word => text.includes(word))) return 'Organic Chemistry';
+    if (inorganic.some(word => text.includes(word))) return 'Inorganic Chemistry';
+    if (physical.some(word => text.includes(word))) return 'Physical Chemistry';
+    if (physics.some(word => text.includes(word))) return 'Physics';
+    
+    return 'General';
         }
-        subjectWise[subject].total++;
-        if (isCorrect) subjectWise[subject].correct++;
-        else if (userAnswer) subjectWise[subject].wrong++;
-    });
     
     const total = questions.length;
     const attempted = correct + wrong;
