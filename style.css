@@ -544,3 +544,19 @@ body {
         grid-template-columns: 1fr;
     }
 }
+..subject-section {
+    margin-bottom: 25px;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 15px;
+    border: 1px solid #e0e0e0;
+}
+
+.subject-section h3 {
+    color: #1a237e;
+    margin-bottom: 10px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
