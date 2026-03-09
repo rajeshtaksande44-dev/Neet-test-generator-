@@ -560,3 +560,227 @@ body {
     align-items: center;
     gap: 5px;
 }
+/* ===== PROFESSIONAL CREATOR SCREEN STYLES ===== */
+
+/* Main creator card */
+.creator-card {
+    background: white;
+    border-radius: 30px;
+    padding: 35px 30px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    max-width: 800px;
+    margin: 30px auto;
+    transition: all 0.3s ease;
+}
+
+.creator-card h2 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1a237e;
+    margin-bottom: 25px;
+    text-align: center;
+    position: relative;
+}
+
+.creator-card h2:after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    margin: 15px auto 0;
+    border-radius: 2px;
+}
+
+/* Input groups */
+.input-group {
+    margin-bottom: 25px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.3px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 15px 18px;
+    border: 2px solid #e0e0e0;
+    border-radius: 16px;
+    font-size: 16px;
+    transition: all 0.2s;
+    background: #fafafa;
+}
+
+.input-group input:focus {
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    outline: none;
+}
+
+/* Subject sections - professional cards */
+.subject-section {
+    background: white;
+    border: 1px solid #edf2f7;
+    border-radius: 24px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.subject-section:hover {
+    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.1);
+    transform: translateY(-2px);
+}
+
+.subject-section h3 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #2d3748;
+}
+
+.subject-section h3 i {
+    font-size: 28px;
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea15, #764ba215);
+    border-radius: 12px;
+    color: #667eea;
+}
+
+/* Fallback if no Font Awesome */
+.subject-section h3 .emoji-fallback {
+    font-size: 28px;
+    margin-right: 10px;
+}
+
+/* Textareas */
+.subject-section textarea {
+    width: 100%;
+    padding: 18px;
+    border: 2px solid #e2e8f0;
+    border-radius: 20px;
+    font-size: 15px;
+    line-height: 1.6;
+    background: #f8fafc;
+    resize: vertical;
+    transition: all 0.2s;
+    font-family: 'Courier New', monospace; /* Gives a "code" feel for pasting questions */
+}
+
+.subject-section textarea:focus {
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    outline: none;
+}
+
+/* Sample questions button */
+.sample-btn {
+    text-align: center;
+    padding: 14px 20px;
+    margin: 20px 0 25px;
+    border: 2px dashed #667eea;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #667eea;
+    background: #f0f4ff;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.sample-btn:hover {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+.sample-btn i {
+    font-size: 20px;
+}
+
+/* Primary button */
+.btn-primary {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 18px 30px;
+    border-radius: 50px;
+    font-size: 18px;
+    font-weight: 700;
+    margin: 15px 0 10px;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.3s;
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 25px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary i {
+    font-size: 22px;
+}
+
+/* Secondary button */
+.btn-secondary {
+    background: white;
+    color: #4a5568;
+    border: 2px solid #e2e8f0;
+    padding: 15px 30px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 5px 0;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-secondary:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .creator-card {
+        padding: 25px 20px;
+        margin: 15px;
+    }
+    
+    .subject-section {
+        padding: 20px;
+    }
+    
+    .subject-section h3 {
+        font-size: 20px;
+    }
+}
