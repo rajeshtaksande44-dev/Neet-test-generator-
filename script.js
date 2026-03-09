@@ -38,12 +38,17 @@ function hideAllScreens() {
 }
 
 // Load sample questions
-function loadSample() {
-    const sampleText = `1. Which is the powerhouse of cell?
-A. Nucleus
-B. Mitochondria
-C. Ribosome
-D. Golgi apparatus
+
+// Generate test from pasted questions
+function generateTest() {
+    const pastedText = document.getElementById('question-paste').value;
+    const duration = parseInt(document.getElementById('test-duration').value) || 180;
+    testTitle = document.getElementById('test-titfunction loadSample() {
+    const physicsSample = `1. Which law states F = ma?
+A. Newton's 1st
+B. Newton's 2nd
+C. Newton's 3rd
+D. Kepler's Law
 Answer: B
 
 2. Unit of electric current?
@@ -53,70 +58,59 @@ C. Ohm
 D. Watt
 Answer: B
 
-3. Which vitamin is produced in sunlight?
+3. Which of the following is a vector quantity?
+A. Mass
+B. Temperature
+C. Velocity
+D. Time
+Answer: C`;
+
+    const chemistrySample = `1. Which element has the highest electronegativity?
+A. Oxygen
+B. Fluorine
+C. Chlorine
+D. Nitrogen
+Answer: B
+
+2. Organic compound with functional group -OH?
+A. Alcohol
+B. Aldehyde
+C. Ketone
+D. Carboxylic acid
+Answer: A
+
+3. In which block does Copper belong?
+A. s-block
+B. p-block
+C. d-block
+D. f-block
+Answer: C`;
+
+    const biologySample = `1. Which is the powerhouse of cell?
+A. Nucleus
+B. Mitochondria
+C. Ribosome
+D. Golgi apparatus
+Answer: B
+
+2. Which vitamin is produced in sunlight?
 A. Vitamin A
 B. Vitamin B
 C. Vitamin C
 D. Vitamin D
 Answer: D
 
-4. Which of the following is a vector quantity?
-A. Mass
-B. Temperature
-C. Velocity
-D. Time
-Answer: C
+3. Blood cells that lack nucleus in humans?
+A. RBC
+B. WBC
+C. Platelets
+D. All
+Answer: A`;
 
-5. The most abundant gas in Earth's atmosphere?
-A. Oxygen
-B. Hydrogen
-C. Nitrogen
-D. Carbon dioxide
-Answer: C
-
-6. Which enzyme is present in saliva?
-A. Pepsin
-B. Trypsin
-C. Amylase
-D. Lipase
-Answer: C
-
-7. Which of the following is not a fossil fuel?
-A. Coal
-B. Petroleum
-C. Natural gas
-D. Biogas
-Answer: D
-
-8. pH of pure water?
-A. 5
-B. 7
-C. 9
-D. 11
-Answer: B
-
-9. Which vitamin is known as Ascorbic acid?
-A. Vitamin A
-B. Vitamin B12
-C. Vitamin C
-D. Vitamin D
-Answer: C
-
-10. Which of the following is a primary color?
-A. Green
-B. Orange
-C. Purple
-D. Red
-Answer: D`;
-
-    document.getElementById('question-paste').value = sampleText;
-}
-
-// Generate test from pasted questions
-function generateTest() {
-    const pastedText = document.getElementById('question-paste').value;
-    const duration = parseInt(document.getElementById('test-duration').value) || 180;
-    testTitle = document.getElementById('test-title').value || 'NEET Mock Test';
+    document.getElementById('physics-questions').value = physicsSample;
+    document.getElementById('chemistry-questions').value = chemistrySample;
+    document.getElementById('biology-questions').value = biologySample;
+}le').value || 'NEET Mock Test';
     
     if (!pastedText.trim()) {
         alert('Please paste some questions first!');
